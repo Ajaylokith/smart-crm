@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 
 load_dotenv()
@@ -12,13 +13,21 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 
 from models import db
 db.init_app(app)
 jwt = JWTManager(app)
 
 from routes.auth import auth
+from routes.customers import customers
+from routes.leads import leads
+from routes.tasks import tasks
+
 app.register_blueprint(auth)
+app.register_blueprint(customers)
+app.register_blueprint(leads)
+app.register_blueprint(tasks)
 
 @app.route('/api/health')
 def health():
